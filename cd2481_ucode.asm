@@ -338,19 +338,21 @@ L0051:
     BR7 L1110
 
 ; ============================================================
+; DMA buffer setup — touches ARBADRU + ATBADRL (13 calls)
 ; ============================================================
-L0056:
+sub_dma_buf_setup:
     ALU ARBADRU
     ALU2 0x5D
     BCS L1FA0
     ALU r8 0x01
-    BR1B L005D
+    BR1B sub_reset_dispatch
     LD 0xD0
     BR7 L1110
 
 ; ============================================================
+; reset dispatch — BR12 + ALU + JMP to reset_handler (91 calls)
 ; ============================================================
-L005D:
+sub_reset_dispatch:
     BR12 L0038
     ALU 0x98
     ALU2 ATBADRL
@@ -362,7 +364,7 @@ L005D:
 ; ============================================================
 L0061:
     ; dispatch to common channel handler at 0x1065
-    BRE L1065
+    BRE channel_handler
     ; channel 0 dispatch — conditional branch to handler
     BCH3 L1064
     ; channel 0 conditional branch to fast path
@@ -371,7 +373,7 @@ L0061:
 ; ============================================================
 ; ============================================================
 L0064:
-    BRE L1065
+    BRE channel_handler
     ; channel 1 dispatch — conditional branch to handler
     BCH3 L1067
 
@@ -384,7 +386,7 @@ L0066:
 ; ============================================================
 ; ============================================================
 L0067:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; ============================================================
@@ -401,7 +403,7 @@ L0069:
 ; ============================================================
 ; ============================================================
 L006A:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; ============================================================
@@ -414,7 +416,7 @@ chan3_dispatch:
 ; ============================================================
 ; ============================================================
 L006D:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; ============================================================
@@ -427,7 +429,7 @@ chan4_dispatch:
 ; ============================================================
 ; ============================================================
 L0070:
-    BRE L1065
+    BRE channel_handler
     ; channel 5 dispatch — conditional branch to handler
     BCH3 L1073
     ; channel 5 conditional branch to fast path
@@ -436,7 +438,7 @@ L0070:
 ; ============================================================
 ; ============================================================
 L0073:
-    BRE L1065
+    BRE channel_handler
     ; channel 6 dispatch — conditional branch to handler
     BCH3 L1076
     ; channel 6 conditional branch to fast path
@@ -445,7 +447,7 @@ L0073:
 ; ============================================================
 ; ============================================================
 L0076:
-    BRE L1065
+    BRE channel_handler
     ALU r2 0x02
 
 ; ============================================================
@@ -470,7 +472,7 @@ L007D:
 ; Per-channel setup
 ; ============================================================
 L007F:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -488,7 +490,7 @@ L0081:
 ; Per-channel setup
 ; ============================================================
 L0082:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1067
 
 ; ============================================================
@@ -501,7 +503,7 @@ L0084:
 ; Per-channel setup
 ; ============================================================
 L0085:
-    BRE L1065
+    BRE channel_handler
     BCH3 L106A
 
 ; ============================================================
@@ -514,7 +516,7 @@ L0087:
 ; Per-channel setup
 ; ============================================================
 L0088:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -532,7 +534,7 @@ L008A:
 ; Per-channel setup
 ; ============================================================
 L008B:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1070
     BCH L00AC
 
@@ -540,7 +542,7 @@ L008B:
 ; Per-channel setup
 ; ============================================================
 L008E:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1073
 
 ; ============================================================
@@ -553,7 +555,7 @@ L0090:
 ; Per-channel setup
 ; ============================================================
 L0091:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1076
     BCH L00B2
 
@@ -561,7 +563,7 @@ L0091:
 ; Per-channel setup
 ; ============================================================
 L0094:
-    BRE L1065
+    BRE channel_handler
     ALU r2 0x02
     ALU2 0x99
     BCFE L0102
@@ -581,7 +583,7 @@ L009B:
 ; Per-channel setup
 ; ============================================================
 L009D:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1064
     BCH L00BE
 
@@ -589,7 +591,7 @@ L009D:
 ; Per-channel setup
 ; ============================================================
 L00A0:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1067
     BCH L00C1
 
@@ -597,7 +599,7 @@ L00A0:
 ; Per-channel setup
 ; ============================================================
 L00A3:
-    BRE L1065
+    BRE channel_handler
     BCH3 L106A
     BCH L00C4
 
@@ -605,7 +607,7 @@ L00A3:
 ; Per-channel setup
 ; ============================================================
 L00A6:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -618,7 +620,7 @@ L00A7:
 ; Per-channel setup
 ; ============================================================
 L00A9:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -636,7 +638,7 @@ L00AB:
 ; Per-channel setup
 ; ============================================================
 L00AC:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1073
 
 ; ============================================================
@@ -649,7 +651,7 @@ L00AE:
 ; Per-channel setup
 ; ============================================================
 L00AF:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -662,7 +664,7 @@ L00B0:
 ; Per-channel setup
 ; ============================================================
 L00B2:
-    BRE L1065
+    BRE channel_handler
     ALU r2 0x02
     ALU2 0xB7
     BCFE L0102
@@ -682,7 +684,7 @@ L00B9:
 ; Per-channel setup
 ; ============================================================
 L00BB:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1064
     BCH L00DC
 
@@ -690,7 +692,7 @@ L00BB:
 ; Per-channel setup
 ; ============================================================
 L00BE:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1067
     BCH L00DF
 
@@ -698,7 +700,7 @@ L00BE:
 ; Per-channel setup
 ; ============================================================
 L00C1:
-    BRE L1065
+    BRE channel_handler
     BCH3 L106A
     BCH L00E2
 
@@ -706,7 +708,7 @@ L00C1:
 ; Per-channel setup
 ; ============================================================
 L00C4:
-    BRE L1065
+    BRE channel_handler
     BCH3 L106D
     BCH L00E5
 
@@ -714,7 +716,7 @@ L00C4:
 ; Per-channel setup
 ; ============================================================
 L00C7:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1070
     BCH L00E8
 
@@ -722,7 +724,7 @@ L00C7:
 ; Per-channel setup
 ; ============================================================
 L00CA:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -740,7 +742,7 @@ L00CC:
 ; Per-channel setup
 ; ============================================================
 L00CD:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -753,7 +755,7 @@ L00CE:
 ; Per-channel setup
 ; ============================================================
 L00D0:
-    BRE L1065
+    BRE channel_handler
     ALU r2 0x02
     ALU2 0xD5
     BCFE L0102
@@ -773,7 +775,7 @@ L00D7:
 ; Per-channel setup
 ; ============================================================
 L00D9:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1064
     BCH L00FA
 
@@ -781,7 +783,7 @@ L00D9:
 ; Per-channel setup
 ; ============================================================
 L00DC:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1067
     BCH L00FC
 
@@ -789,7 +791,7 @@ L00DC:
 ; Per-channel setup
 ; ============================================================
 L00DF:
-    BRE L1065
+    BRE channel_handler
     BCH3 L106A
     BCH L00FE
 
@@ -797,7 +799,7 @@ L00DF:
 ; Per-channel setup
 ; ============================================================
 L00E2:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -810,7 +812,7 @@ L00E3:
 ; Per-channel setup
 ; ============================================================
 L00E5:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1070
     BCH L0102
 
@@ -818,7 +820,7 @@ L00E5:
 ; Per-channel setup
 ; ============================================================
 L00E8:
-    BRE L1065
+    BRE channel_handler
     BCH3 L1073
 
 ; ============================================================
@@ -831,7 +833,7 @@ L00EA:
 ; Per-channel setup
 ; ============================================================
 L00EB:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Per-channel setup
@@ -844,7 +846,7 @@ L00EC:
 ; Per-channel setup
 ; ============================================================
 L00EE:
-    BRE L1065
+    BRE channel_handler
     ALU r2 0x02
 
 ; ============================================================
@@ -1564,7 +1566,7 @@ L01E4:
     BCS L1042
     LD f r11 0x90
     ST r5 0xB0
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Interrupt service dispatch
@@ -1643,7 +1645,7 @@ L0202:
 ; Register initialization
 ; ============================================================
 L0203:
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Register initialization
@@ -1778,8 +1780,9 @@ L0230:
 
 ; ============================================================
 ; Register initialization
+; AIRH setup sequence — 20 instructions (4 calls)
 ; ============================================================
-L0232:
+sub_airh_setup:
     ST AIRH
     BR12 L1FEB
 
@@ -1815,7 +1818,7 @@ L0242:
 ; ============================================================
 L0245:
     BCS L1062
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Register initialization
@@ -1831,7 +1834,7 @@ L0247:
 ; ============================================================
 L024B:
     BCS L1062
-    CALL L0056
+    CALL sub_dma_buf_setup
     LD r3 0x90
     BRB L1110
 
@@ -1849,14 +1852,14 @@ L0250:
     BRB L1110
     BR1B L0280
     BNC L0270
-    CALL L0232
+    CALL sub_airh_setup
     LD r3 0xD0
     BRB L1110
     ALU2 r2 ATBCNT
     BNC L0250
-    CALL L0232
+    CALL sub_airh_setup
     BNC L0290
-    CALL L0232
+    CALL sub_airh_setup
 
 ; ============================================================
 ; Register initialization
@@ -1897,7 +1900,7 @@ L0268:
 ; ============================================================
 L026A:
     BNC L02D0
-    CALL L0232
+    CALL sub_airh_setup
 
 ; ============================================================
 ; Register initialization
@@ -2230,7 +2233,7 @@ L030B:
 ; Register initialization
 ; ============================================================
 L030E:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2254,7 +2257,7 @@ L0314:
     BCFE L0801
     BNC L03D0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2289,7 +2292,7 @@ L031F:
     BCFE L0801
     BNC L03F0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2305,7 +2308,7 @@ L0330:
     BCFE L0801
     BNC L0350
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2346,7 +2349,7 @@ L0342:
     BCFE L0048
     ST 0xA8
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2383,7 +2386,7 @@ L0350:
     ST r4 0x28
     BNC L0390
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
     BNC L0FD0
     ST r5 0x70
     BCFE L0801
@@ -2403,7 +2406,7 @@ L0368:
     ST r4 0x29
     BNC L0370
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2422,7 +2425,7 @@ L0370:
     BNC L0010
     ST f r11 0x90
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2434,7 +2437,7 @@ L0375:
     BCFE L0801
     BR12 L1FE8
     ST r4 0x28
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2447,7 +2450,7 @@ L037B:
     ST r4 RFOC
     ALU2 r3 0x82
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2518,7 +2521,7 @@ L039D:
     BCS L01F0
     BCC8 L1150
     ST r1 0xD0
-    BR1C L005D
+    BR1C sub_reset_dispatch
     BCC L0170
     ALU2 r3 0xBB
 
@@ -2527,7 +2530,7 @@ L039D:
 ; ============================================================
 L03A9:
     BR18 L0423
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2536,7 +2539,7 @@ L03AB:
     BNC L0010
     ; RFOC: receive FIFO occupancy count
     ST r2 RFOC
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2565,7 +2568,7 @@ L03B0:
 ; ============================================================
 L03B9:
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU ARBADRL
     ALU2 r3 0xB9
     BCS L1FA2
@@ -2581,7 +2584,7 @@ L03B9:
 ; ============================================================
 L03C3:
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2617,7 +2620,7 @@ L03D0:
     BR17 L1FF0
     ST r5 0x70
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2626,7 +2629,7 @@ L03D4:
     LD r1 0xD0
     ST r5 0x70
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2648,7 +2651,7 @@ L03D8:
 L03E0:
     BNC L0470
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
     LD r1 AIRH
     BR17 L1FF0
     ST r5 0x70
@@ -2702,7 +2705,7 @@ L0400:
 ; Register initialization
 ; ============================================================
 L0401:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2710,7 +2713,7 @@ L0401:
 L0402:
     BNC L02F0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2764,7 +2767,7 @@ L0410:
     ALU2 r4 SCHR2
     BCFE L020A
     ST r11 TISR
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2775,12 +2778,12 @@ L0418:
     ALU2 r4 SCHR2
     BCFE L020A
     ST r11 0xAA
-    CALL L005D
+    CALL sub_reset_dispatch
     LD r9 0xD0
     BCFE L0210
     ST r9 0xD0
     BR18 L0428
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Register initialization
@@ -2852,13 +2855,13 @@ L0439:
 ; Register initialization
 ; ============================================================
 L043F:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L143F
     ALU r12 0x03
     NOP L1445
     BCH L044F
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BNC L0250
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
@@ -2880,7 +2883,7 @@ L044D:
 ; Register initialization
 ; ============================================================
 L044F:
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Register initialization
@@ -3112,7 +3115,7 @@ L04A6:
 L04AD:
     BCC L0067
     BCFE L0087
-    BRE L1065
+    BRE channel_handler
 
 ; ============================================================
 ; Register initialization
@@ -3129,7 +3132,7 @@ L04B0:
 ; Register initialization
 ; ============================================================
 L04B6:
-    BRE L1065
+    BRE channel_handler
     LD r3 0x70
     BRB L10B0
     ALU2 r4 0xCD
@@ -3149,7 +3152,7 @@ L04C1:
     BCFE L0102
     BCH L04AD
     BCC L00A7
-    BRE L1065
+    BRE channel_handler
     LD r3 0x70
     BRB L10B0
     ALU2 r4 0xCD
@@ -3182,7 +3185,7 @@ L04D0:
 L04D4:
     BCC L0067
     BCFE L0087
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L04D9
 
@@ -3190,7 +3193,7 @@ L04D4:
 ; Register initialization
 ; ============================================================
 L04D9:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L14D9
     ALU r12 0x03
@@ -3200,7 +3203,7 @@ L04D9:
     BR1B L04E8
     ALU r2 0x02
     BR1B L04EC
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     ; TEOIR: transmit end-of-interrupt (host writes to end TX service)
     ST r5 TEOIR
@@ -3228,7 +3231,7 @@ L04EC:
 ; Register initialization
 ; ============================================================
 L04EE:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
 
 ; ============================================================
@@ -3263,7 +3266,7 @@ L04FB:
 ; Register initialization
 ; ============================================================
 L04FC:
-    BRE L1065
+    BRE channel_handler
     LD r3 0xB0
     BRB L1205
     BCH L14FC
@@ -3277,7 +3280,7 @@ L0502:
     BCFE L0A02
     BCH L0507
     BR1F L0502
-    BRE L1065
+    BRE channel_handler
     BCH L04FC
 
 ; ============================================================
@@ -3286,7 +3289,7 @@ L0502:
 L0507:
     BCC L0067
     BCS L11E7
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L050C
 
@@ -3294,7 +3297,7 @@ L0507:
 ; Register initialization
 ; ============================================================
 L050C:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L150C
     ALU r12 0x03
@@ -3305,7 +3308,7 @@ L050C:
 L0510:
     NOP L1512
     BCH L0529
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     ALU 0x22
     BR1B L051B
@@ -3314,8 +3317,9 @@ L0510:
 
 ; ============================================================
 ; Register initialization
+; transmit EOI handler — TEOIR (2 calls)
 ; ============================================================
-L0518:
+sub_txeoi_handler:
     ; TEOIR: transmit end-of-interrupt (host writes to end TX service)
     ST r5 TEOIR
     BCFE L0202
@@ -3347,20 +3351,20 @@ L0522:
 L0524:
     JMP1E L0527
     BCS L0FE5
-    CALL L0518
+    CALL sub_txeoi_handler
 
 ; ============================================================
 ; Register initialization
 ; ============================================================
 L0527:
     BCFE L1005
-    CALL L0518
+    CALL sub_txeoi_handler
 
 ; ============================================================
 ; Register initialization
 ; ============================================================
 L0529:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L052C
 
@@ -3469,11 +3473,11 @@ L0557:
 ; Main protocol handler
 ; ============================================================
 L0603:
-    CALL L08C3
+    CALL sub_store_status
     LD r3 RISRl
     ALU 0x49
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 RISRl
 
 ; ============================================================
@@ -3482,12 +3486,12 @@ L0603:
 L0609:
     ALU RISRl
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 RISRl
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -3497,22 +3501,22 @@ L0610:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 RISRl
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 RISRl
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 RISRl
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ALU 0x29
 
@@ -3521,20 +3525,20 @@ L0610:
 ; ============================================================
 L0622:
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ALU 0x49
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ALU RISRl
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -3544,39 +3548,39 @@ L0630:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xA9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ALU 0x29
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ALU 0x49
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ALU RISRl
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -3586,39 +3590,39 @@ L0650:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xC9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ALU 0x29
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ALU 0x49
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ALU RISRl
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -3628,22 +3632,22 @@ L0670:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
     LD r3 0xE9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r8 0xC6
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -3742,7 +3746,7 @@ L06A2:
 ; Main protocol handler
 ; ============================================================
 L06A8:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L16A8
     BCH L06AC
@@ -3751,7 +3755,7 @@ L06A8:
 ; Main protocol handler
 ; ============================================================
 L06AC:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BNC L0250
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
@@ -3863,10 +3867,10 @@ L06D0:
     ALU f COR1
     ALU2 r6 0xE6
     BR17 L0FC8
-    BR1B L06E6
+    BR1B sub_cond_branch
     BNC L0BB0
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -3877,19 +3881,21 @@ L06E4:
 
 ; ============================================================
 ; Main protocol handler
+; conditional branch (14 calls)
 ; ============================================================
-L06E6:
+sub_cond_branch:
     BCS L1A42
 
 ; ============================================================
 ; Main protocol handler
+; status check — single BCS branch (41 calls)
 ; ============================================================
-L06E7:
+sub_check_status:
     BCS L1DE2
-    CALL L0056
+    CALL sub_dma_buf_setup
     BNC L0B70
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -3923,12 +3929,13 @@ L06F0:
     ALU2 r6 0xE6
     BNC L0BB0
     ST AIRH
-    CALL L0702
+    CALL sub_isr_entry
 
 ; ============================================================
 ; Main protocol handler
+; ISR entry — CCR+COR1+LIVR+RFOC (2 calls)
 ; ============================================================
-L0702:
+sub_isr_entry:
     LD r3 0x29
     BCS L11E9
     BCFE L0209
@@ -3994,7 +4001,7 @@ L0720:
     ALU2 r6 0xE6
     LD r1 0x0B
     BR12 L1E30
-    BR1C L06E7
+    BR1C sub_check_status
     ALU r8 0x0E
     ALU2 r7 0x37
     ALU RISRl
@@ -4031,11 +4038,11 @@ L073C:
     ST r6 0x0A
     ST r1 0x0B
     BR18 L07A0
-    CALL L06E6
+    CALL sub_cond_branch
     LD r3 0x29
     BCS L1F69
     ST r3 0x29
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4053,7 +4060,7 @@ L0750:
     LD r3 0x29
     BCFE L0089
     ST r3 0x29
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4068,7 +4075,7 @@ L0754:
     BR17 L0FA8
     BR1B L075E
     BCFE L0802
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4106,7 +4113,7 @@ L0770:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1170
-    BR1C L06E7
+    BR1C sub_check_status
     LD r2 AIRH
     BCS L01F0
     ALU2 r7 0x83
@@ -4134,7 +4141,7 @@ L0781:
 ; ============================================================
 L0783:
     BR18 L07A0
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4177,7 +4184,7 @@ L0793:
     BCFE L0209
     ST r3 0x29
     BR18 L07A0
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -4218,7 +4225,7 @@ L07B0:
     BCFE L1801
     BNC L0A50
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4247,13 +4254,13 @@ L07C3:
     BCFE L0050
     ST 0xB0
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
     LD r2 0x90
     ALU 0x90
     ALU2 0x5D
     BNC L0010
     ST f r11 0x90
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4282,7 +4289,7 @@ L07D3:
     ST r5 0x70
     BCFE L1801
     BCFE L1002
-    CALL L005D
+    CALL sub_reset_dispatch
     BNC L1FF0
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ST f r10 COR1
@@ -4299,7 +4306,7 @@ L07D3:
     ST r5 0x70
     BCS L0FE2
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4330,7 +4337,7 @@ L07F0:
     ALU2 0x5D
     LD r3 0x29
     ALU RISRl
-    BR1B L005D
+    BR1B sub_reset_dispatch
     ALU r2 0x01
     ALU2 r8 0x00
     LD r4 0x88
@@ -4371,7 +4378,7 @@ L0807:
 ; Main protocol handler
 ; ============================================================
 L0809:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4415,11 +4422,11 @@ L0817:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1150
-    BR1C L005D
+    BR1C sub_reset_dispatch
     BCC L0170
     ALU2 r8 0x25
     BR18 L0423
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU ARBADRL
     ALU2 r8 0x2F
     BCS L1FA2
@@ -4447,7 +4454,7 @@ L082E:
 ; Main protocol handler
 ; ============================================================
 L0830:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4472,10 +4479,10 @@ L083C:
     ST r5 0x68
     BCFE L0801
     ALU r2 0x01
-    BR1B L005D
+    BR1B sub_reset_dispatch
     BNC L0B30
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4505,10 +4512,10 @@ L084E:
 ; ============================================================
 L0850:
     ALU r2 0x01
-    BR1B L005D
+    BR1B sub_reset_dispatch
     BNC L0B50
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4528,7 +4535,7 @@ L0855:
     ST f r11 0x90
     BNC L0A30
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4540,7 +4547,7 @@ L0864:
     ST 0xD0
     BCFE L0801
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4556,7 +4563,7 @@ L086B:
 ; Main protocol handler
 ; ============================================================
 L0870:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4578,7 +4585,7 @@ L0871:
     BCFE L1002
     BCFE L0801
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4608,7 +4615,7 @@ L0881:
 ; Main protocol handler
 ; ============================================================
 L0890:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -4657,11 +4664,11 @@ L089D:
     LD r11 RISRl
     ALU RISRl
     ALU2 r8 0xB0
-    CALL L08C3
+    CALL sub_store_status
     LD r11 0xA9
     ALU RISRl
     ALU2 r8 0xB0
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4681,7 +4688,7 @@ L08B5:
     ALU2 r8 0xC6
     BRB L1128
     BR1B L08BA
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4691,7 +4698,7 @@ L08BA:
     ALU2 r8 0xC6
     BRB L1128
     BR1B L08BF
-    CALL L08C3
+    CALL sub_store_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4704,8 +4711,9 @@ L08BF:
 
 ; ============================================================
 ; Main protocol handler
+; store status byte + conditional branches (36 calls)
 ; ============================================================
-L08C3:
+sub_store_status:
     ST r4 0x88
     BCFE L0201
     BNC L0FA8
@@ -4721,17 +4729,17 @@ L08C6:
     LD r4 LIVR
     ALU 0x29
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     ; LIVR: local interrupt vector register (host sets 0x40)
     LD r4 LIVR
     ALU 0x49
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     ; LIVR: local interrupt vector register (host sets 0x40)
     LD r4 LIVR
     ALU RISRl
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     ; LIVR: local interrupt vector register (host sets 0x40)
     LD r4 LIVR
     ; LIVR: local interrupt vector register (host sets 0x40)
@@ -4742,7 +4750,7 @@ L08C6:
 ; ============================================================
 L090E:
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4753,42 +4761,42 @@ L0910:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     ; LIVR: local interrupt vector register (host sets 0x40)
     LD r4 LIVR
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     ; LIVR: local interrupt vector register (host sets 0x40)
     LD r4 LIVR
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     ; LIVR: local interrupt vector register (host sets 0x40)
     LD r4 LIVR
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ALU 0x29
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ALU 0x49
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ALU RISRl
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4798,39 +4806,39 @@ L0930:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x29
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ALU 0x29
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ALU 0x49
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ALU RISRl
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4840,39 +4848,39 @@ L0950:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x49
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ALU 0x29
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ALU 0x49
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ALU RISRl
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r1 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4882,22 +4890,22 @@ L0970:
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r2 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r4 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
     LD r4 0x69
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU f LIVR
     ALU2 r7 0x65
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -4991,7 +4999,7 @@ L09A2:
 ; Main protocol handler
 ; ============================================================
 L09A8:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L19A8
     BCH L09AC
@@ -5000,7 +5008,7 @@ L09A8:
 ; Main protocol handler
 ; ============================================================
 L09AC:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BNC L0250
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
@@ -5111,11 +5119,11 @@ L09D0:
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU f COR1
     ALU2 r6 0xE6
-    BR17 L1808
-    BR1B L06E6
+    BR17 sub_check_1462
+    BR1B sub_cond_branch
     BNC L0D30
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5145,7 +5153,7 @@ L09F0:
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU f COR1
     ALU2 r6 0xE6
-    BR17 L1808
+    BR17 sub_check_1462
     ALU2 r6 0xE6
     BNC L0D30
     ST AIRH
@@ -5184,7 +5192,7 @@ L0A09:
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU f COR1
     ALU2 r6 0xE6
-    BR17 L1808
+    BR17 sub_check_1462
     ALU2 r6 0xE6
     BNC L0D50
     ST AIRH
@@ -5200,7 +5208,7 @@ L0A10:
     BR1B L0A16
     BNC L0CF0
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5225,15 +5233,15 @@ L0A17:
     ALU2 r6 0xE6
     LD r1 0x0B
     BR12 L1E30
-    BR1C L06E7
-    BR17 L1808
+    BR1C sub_check_status
+    BR17 sub_check_1462
     ALU2 r10 0x4B
     ALU r8 0x02
     ALU2 r10 0x31
     BCS L17E2
     BR17 L1B88
     BR1B L0A2D
-    BNC L1808
+    BNC sub_check_1462
     CALL L0A35
 
 ; ============================================================
@@ -5252,7 +5260,7 @@ L0A30:
     BR17 L1B68
     BR1B L0A35
     BCFE L0802
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -5270,7 +5278,7 @@ L0A35:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1170
-    BR1C L06E7
+    BR1C sub_check_status
     LD r2 AIRH
     BCS L01F0
     ALU2 r7 0x83
@@ -5298,7 +5306,7 @@ L0A50:
     ST r6 0x0A
     ST r1 0x0B
     BR18 L07A0
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5320,7 +5328,7 @@ L0A59:
     BCFE L0209
     ST r3 0x29
     BR18 L07A0
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5342,7 +5350,7 @@ L0A70:
     BCFE L1801
     BNC L0C30
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5372,7 +5380,7 @@ L0A82:
     ALU2 0x5D
     BNC L0010
     ST f r11 0x90
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5402,7 +5410,7 @@ L0A90:
     ST r5 0x70
     BCFE L1801
     BCFE L1002
-    CALL L005D
+    CALL sub_reset_dispatch
     LD r3 0x29
     BCS L1F09
     BCFE L0049
@@ -5413,7 +5421,7 @@ L0A90:
     ST r5 0x70
     BCS L0FE2
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5460,7 +5468,7 @@ L0AB0:
     BR6 L0008
     BR17 L1B68
     ALU2 r10 0xBF
-    BR17 L1808
+    BR17 sub_check_1462
     ALU2 r10 0xC6
     CALL L0AC8
     BNC L1BB0
@@ -5474,7 +5482,7 @@ L0AC0:
     BNC L1B68
     ST r5 0x68
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
     BNC L1B90
     CALL L0AC0
 
@@ -5506,18 +5514,18 @@ L0AD0:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1150
-    BR1C L005D
+    BR1C sub_reset_dispatch
     BCC L0170
     ALU2 r10 0xDB
     BR18 L0423
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU ARBADRL
     ALU2 r10 PILR2
     BCS L1FA2
     BNC L0C90
     ST 0xD0
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5543,7 +5551,7 @@ L0AE2:
 ; Main protocol handler
 ; ============================================================
 L0AF0:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5563,7 +5571,7 @@ L0AF1:
     ALU2 r10 0xA5
     BNC L0CB0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5581,7 +5589,7 @@ L0AFF:
     BCFE L0801
     BNC L0CD0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5608,7 +5616,7 @@ L0B10:
     BCFE L1002
     BCFE L0801
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -5702,7 +5710,7 @@ L0B37:
 ; Main protocol handler
 ; ============================================================
 L0B3D:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L1B3D
     BCH L0B41
@@ -5711,7 +5719,7 @@ L0B3D:
 ; Main protocol handler
 ; ============================================================
 L0B41:
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BNC L0250
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
@@ -5819,10 +5827,10 @@ L0B70:
     ALU2 r6 0xE6
     LD r3 0x90
     BRB L1110
-    BR1B L06E6
+    BR1B sub_cond_branch
     BNC L0F90
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5857,7 +5865,7 @@ L0B7A:
 ; Main protocol handler
 ; ============================================================
 L0B90:
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5865,7 +5873,7 @@ L0B90:
 L0B91:
     BNC L0F70
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5894,7 +5902,7 @@ L0B94:
     BR1B L0B91
     BNC L0FD0
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -5961,13 +5969,13 @@ L0BC2:
 L0BD0:
     LD r1 0x0B
     BR12 L1E30
-    BR1C L06E7
+    BR1C sub_check_status
     LD r3 0xB0
     BRB L1110
     BR1B L0BD9
     BNC L1010
     ST AIRH
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -5993,7 +6001,7 @@ L0BE1:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1170
-    BR1C L06E7
+    BR1C sub_check_status
     LD r2 AIRH
     BCS L01F0
     ALU2 r7 0x83
@@ -6015,7 +6023,7 @@ L0BF0:
 L0BF2:
     BNC L0F70
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -6044,7 +6052,7 @@ L0C01:
     ALU2 r6 0xE6
     LD r1 0x0B
     BR12 L1E30
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r3 0xA9
     BRB L1128
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
@@ -6086,7 +6094,7 @@ L0C10:
     ST f r10 0x48
     .fill 8, 0x1E000
     ST r1 0x90
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -6132,7 +6140,7 @@ L0C33:
     BR18 L1E39
     BNC L1070
     ST AIRH
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -6168,7 +6176,7 @@ L0C4A:
     BR18 L1E39
     BNC L1030
     ST AIRH
-    CALL L06E7
+    CALL sub_check_status
 
 ; ============================================================
 ; Main protocol handler
@@ -6211,7 +6219,7 @@ L0C5D:
     BR18 L07A0
     BNC L0F70
     ST AIRH
-    CALL L06E6
+    CALL sub_cond_branch
 
 ; ============================================================
 ; Main protocol handler
@@ -6233,7 +6241,7 @@ L0C70:
     BCFE L1801
     BNC L0DB0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6260,7 +6268,7 @@ L0C76:
     ALU2 0x5D
     BNC L0010
     ST f r11 0x90
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6285,7 +6293,7 @@ L0C90:
     ST r5 0x70
     BCFE L1801
     BCFE L1002
-    CALL L005D
+    CALL sub_reset_dispatch
     BNC L1FF0
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ST f r10 COR1
@@ -6302,7 +6310,7 @@ L0C90:
     BCFE L0801
     BNC L0DF0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6318,7 +6326,7 @@ L0CAA:
     BCFE L0801
     BNC L0E10
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6334,7 +6342,7 @@ L0CB0:
     BCFE L0801
     BNC L0E30
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6345,8 +6353,9 @@ L0CB4:
 
 ; ============================================================
 ; Main protocol handler
+; baud rate config — COR1+RISRl+TCOR (2 calls)
 ; ============================================================
-L0CB6:
+sub_baud_config:
     LD r2 0x8E
     ALU 0x8E
     ALU2 r12 0xBB
@@ -6360,7 +6369,7 @@ L0CB6:
     ALU2 0x5D
     LD r3 0x29
     ALU RISRl
-    BR1B L005D
+    BR1B sub_reset_dispatch
     ALU r2 0x01
     ALU2 r12 0xCA
     LD r4 0x88
@@ -6390,7 +6399,7 @@ L0CD0:
     ST r4 0x88
     ST r5 0x68
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6418,7 +6427,7 @@ L0CDE:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1150
-    BR1C L005D
+    BR1C sub_reset_dispatch
     BCC L0170
     ; TIR: transmit interrupt register (bit 7 = Ten = service pending)
     ALU2 r12 TIR
@@ -6428,7 +6437,7 @@ L0CDE:
 ; ============================================================
 L0CEA:
     BR18 L0423
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU ARBADRL
     ALU2 r12 MTCR
     BCS L1FA2
@@ -6440,7 +6449,7 @@ L0CEA:
 L0CF0:
     ST 0xD0
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6454,20 +6463,20 @@ L0CF3:
     ALU2 r12 0xFA
     ALU RISRl
     BR1B L0CFF
-    CALL L0CB6
+    CALL sub_baud_config
     ; LIVR: local interrupt vector register (host sets 0x40)
     ALU r8 LIVR
     ALU2 r12 0xB6
     BNC L0E50
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
 ; ============================================================
 L0CFF:
     BCS L0FE1
-    CALL L0CB6
+    CALL sub_baud_config
 
 ; ============================================================
 ; Main protocol handler
@@ -6478,7 +6487,7 @@ L0D01:
     BCFE L0801
     BNC L0F50
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6502,10 +6511,10 @@ L0D0A:
     ALU2 r13 0x19
     BNC L0EF0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
     BNC L0D90
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6518,7 +6527,7 @@ L0D1C:
     BCFE L0801
     BNC L0F10
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6536,7 +6545,7 @@ L0D24:
 ; ============================================================
 L0D2A:
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6552,7 +6561,7 @@ L0D2C:
 ; ============================================================
 L0D30:
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6579,7 +6588,7 @@ L0D3A:
 ; ============================================================
 L0D3B:
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6590,7 +6599,7 @@ L0D3D:
     BCFE L0801
     BNC L0EB0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6601,7 +6610,7 @@ L0D43:
     BCFE L0801
     BNC L0ED0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6633,7 +6642,7 @@ L0D50:
     BCFE L1002
     BCFE L0801
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6648,7 +6657,7 @@ L0D59:
     BCFE L0801
     BNC L1170
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6697,7 +6706,7 @@ L0D70:
     ALU r1 LIVR
     BR1B L0D75
     BR18 L143E
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6713,7 +6722,7 @@ L0D75:
     BCFE L0050
     ST 0xB0
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6739,7 +6748,7 @@ L0D8A:
     BNC L1190
     ST 0xD0
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6775,11 +6784,11 @@ L0D9B:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1150
-    BR1C L005D
+    BR1C sub_reset_dispatch
     BCC L0170
     ALU2 r13 0xA8
     BR18 L0423
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU ARBADRL
     ALU2 r13 0xAD
 
@@ -6791,7 +6800,7 @@ L0DAA:
     BNC L1130
     ST 0xD0
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6817,7 +6826,7 @@ L0DB0:
     ST r5 0x70
     BCFE L0801
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6838,7 +6847,7 @@ L0DC5:
     BNC L0010
     ; RFOC: receive FIFO occupancy count
     ST r2 RFOC
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Main protocol handler
@@ -6958,7 +6967,7 @@ L0DFB:
 ; Main protocol handler
 ; ============================================================
 L0E01:
-    BRE L1065
+    BRE channel_handler
     BCC L0070
 
 ; ============================================================
@@ -7039,7 +7048,7 @@ L0E17:
 ; ============================================================
 L0E1F:
     BCC L0067
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L0E23
 
@@ -7049,13 +7058,13 @@ L0E1F:
 L0E23:
     ALU 0x22
     BR1B L0DE2
-    BRE L1065
+    BRE channel_handler
     BRE L0067
     BCH L1E23
     ALU 0x22
     NOP L1E2B
     BCH L0DE2
-    BRE L1065
+    BRE channel_handler
     ALU r2 0x02
     BR1B L0E39
     LD r2 0x70
@@ -7151,7 +7160,7 @@ L0E55:
 L0E59:
     BNC L11D0
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Main protocol handler
@@ -7172,9 +7181,9 @@ L0E5C:
     ALU RFOC
     ALU2 r14 0x6A
     BCFE L1022
-    CALL L1808
+    CALL sub_check_1462
     BCFE L0022
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Main protocol handler
@@ -7194,7 +7203,7 @@ L0E70:
     ST r3 0x29
     BNC L11F0
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Main protocol handler
@@ -7291,7 +7300,7 @@ L0EB0:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1170
-    BR1C L1808
+    BR1C sub_check_1462
     BR18 L02EA
     ALU r1 0x02
     ALU2 f r8 0x08
@@ -7307,7 +7316,7 @@ L0EB0:
     LD r2 0xB0
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU f COR1
-    BR1B L1808
+    BR1B sub_check_1462
     LD r3 0x29
     BCS L11E9
     BCFE L0209
@@ -7320,14 +7329,14 @@ L0EB0:
     ALU RFOC
     ALU2 r14 0xD0
     BCFE L1022
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Main protocol handler
 ; ============================================================
 L0ED0:
     BCFE L0022
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Main protocol handler
@@ -7345,7 +7354,7 @@ L0ED2:
 L0ED6:
     LD r1 0x0B
     BR12 L1E10
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r6 ARBCNT
 
 ; ============================================================
@@ -7371,7 +7380,7 @@ L0EDC:
     BCS L1462
     LD r3 0x68
     BNC L0E09
-    CALL L0F38
+    CALL sub_airh_op
     LD r2 0xAD
     ALU r8 0x0D
     ALU2 r15 0x07
@@ -7424,7 +7433,7 @@ L0EF0:
 L0F10:
     BCS L01F0
     BCC8 L1170
-    BR1C L0F14
+    BR1C sub_rxchar_detect
 
 ; ============================================================
 ; Main protocol handler
@@ -7434,8 +7443,9 @@ L0F13:
 
 ; ============================================================
 ; Main protocol handler
+; receive special char detect — RISRl+SCHR2 (3 calls)
 ; ============================================================
-L0F14:
+sub_rxchar_detect:
     LD f r11 RISRl
     BCS L0409
     LD r5 0xAC
@@ -7447,7 +7457,7 @@ L0F14:
     BCFE L100C
     ST r5 0xAC
     BCS L1C62
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Main protocol handler
@@ -7464,7 +7474,7 @@ L0F20:
     BR18 L1DA6
     ST r6 ARBCNT
     ST r1 0x0B
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Main protocol handler
@@ -7491,8 +7501,9 @@ L0F30:
 
 ; ============================================================
 ; Main protocol handler
+; AIRH operation (8 calls)
 ; ============================================================
-L0F38:
+sub_airh_op:
     LD r5 0xAC
     ALU f 0x0C
     ALU2 r15 0x41
@@ -7507,28 +7518,28 @@ L0F38:
     BCS L1F62
     BNC L08F0
     ST AIRH
-    CALL L0F14
+    CALL sub_rxchar_detect
     BNC L0209
-    CALL L0F38
+    CALL sub_airh_op
     BNC L0409
-    CALL L0F38
+    CALL sub_airh_op
     BNC L0609
-    CALL L0F38
+    CALL sub_airh_op
     BNC L0809
-    CALL L0F38
+    CALL sub_airh_op
     BNC L0A09
 
 ; ============================================================
 ; Main protocol handler
 ; ============================================================
 L0F50:
-    CALL L0F38
+    CALL sub_airh_op
     ALU 0x82
     ALU2 r14 0xFC
     BNC L0C09
-    CALL L0F38
+    CALL sub_airh_op
     BNC L0E09
-    CALL L0F38
+    CALL sub_airh_op
 
 ; ============================================================
 ; Main protocol handler
@@ -7536,7 +7547,7 @@ L0F50:
 L0F57:
     LD r1 0x0B
     BR12 L1E70
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r5 0x88
     LD r4 0x0E
     LD r6 ARBCNT
@@ -7627,7 +7638,7 @@ L0F90:
     ST r6 ARBCNT
     ST r1 0x0B
     BR18 L02EA
-    CALL L0F14
+    CALL sub_rxchar_detect
 
 ; ============================================================
 ; Main protocol handler
@@ -7685,7 +7696,7 @@ L0FB0:
     ST r4 0x29
     BNC L08F0
     ST AIRH
-    CALL L0F14
+    CALL sub_rxchar_detect
 
 ; ============================================================
 ; Main protocol handler
@@ -7770,7 +7781,7 @@ L0FE1:
 ; Main protocol handler
 ; ============================================================
 L0FE2:
-    BR1C L005D
+    BR1C sub_reset_dispatch
     CALL L03B9
 
 ; ============================================================
@@ -7867,7 +7878,7 @@ L0FFC:
     BR6 L0008
 
 ; ============================================================
-; Reset handler
+; Reset handler — CCR command processing
 ; ============================================================
 reset_handler:
     ST r5 0x68
@@ -7936,7 +7947,7 @@ L100D:
 ; ============================================================
 L100E:
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -7953,7 +7964,7 @@ L1010:
     LD r3 0x29
     BCFE L0049
     ST r3 0x29
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -7970,7 +7981,7 @@ L101C:
 ; Extended handlers
 ; ============================================================
 L1022:
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -7979,7 +7990,7 @@ L1023:
     BNC L09F0
     ST 0xD0
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -8005,7 +8016,7 @@ L1028:
 L102D:
     BNC L0950
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -8019,7 +8030,7 @@ L1030:
     BR12 L1FE8
     ST r3 0xE8
     ALU2 f 0x2A
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -8049,7 +8060,7 @@ L1043:
     ALU2 f r8 0x08
     BNC L10F0
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Extended handlers
@@ -8073,7 +8084,7 @@ L104E:
 ; Extended handlers
 ; ============================================================
 L1050:
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Extended handlers
@@ -8081,7 +8092,7 @@ L1050:
 L1051:
     BNC L1110
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Extended handlers
@@ -8094,7 +8105,7 @@ L1054:
     BR1B L105B
     BNC L1110
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Extended handlers
@@ -8127,9 +8138,9 @@ L1064:
     LD r2 0xD0
 
 ; ============================================================
-; Extended handlers
+; Common channel handler
 ; ============================================================
-L1065:
+channel_handler:
     BCS L01F0
     BCC8 L1170
 
@@ -8137,7 +8148,7 @@ L1065:
 ; Extended handlers
 ; ============================================================
 L1067:
-    BR1C L1808
+    BR1C sub_check_1462
 
 ; ============================================================
 ; Extended handlers
@@ -8183,7 +8194,7 @@ L1073:
 ; ============================================================
 L1076:
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
     .fill 136, 0x1E000
     CALL L119D
     CALL L11A8
@@ -8193,34 +8204,34 @@ L1076:
     CALL L11F2
     CALL L11FD
     CALL L1208
-    CALL L121A
+    CALL sub_airh_op2
 
 ; ============================================================
 ; Extended handlers
 ; ============================================================
 L1109:
-    CALL L121A
+    CALL sub_airh_op2
 
 ; ============================================================
 ; Extended handlers
 ; ============================================================
 L110A:
-    CALL L121A
+    CALL sub_airh_op2
 
 ; ============================================================
 ; Extended handlers
 ; ============================================================
 L110B:
-    CALL L121A
-    CALL L121A
+    CALL sub_airh_op2
+    CALL sub_airh_op2
 
 ; ============================================================
 ; Extended handlers
 ; ============================================================
 L110D:
-    CALL L121A
-    CALL L121A
-    CALL L121A
+    CALL sub_airh_op2
+    CALL sub_airh_op2
+    CALL sub_airh_op2
 
 ; ============================================================
 ; Extended handlers
@@ -8383,7 +8394,7 @@ L1150:
     CALL L0855
     CALL L06CE
     CALL L06EC
-    CALL L0702
+    CALL sub_isr_entry
     CALL L071C
     CALL L0785
     CALL L0A6A
@@ -8501,8 +8512,9 @@ L119D:
 
 ; ============================================================
 ; Extended handlers
+; short utility (8 calls)
 ; ============================================================
-L11A5:
+sub_short_util:
     ST f r9 0x0B
     ST f r8 0x0F
     ; jump to reset handler at 0x1000
@@ -8560,7 +8572,7 @@ L11B5:
     ST AIRH
     BNC L05F0
     ST 0xD0
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -8615,7 +8627,7 @@ L11D0:
     BCS L024B
     BCFE L004B
     BCS L1BE1
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -8640,7 +8652,7 @@ L11D8:
 ; Extended handlers
 ; ============================================================
 L11E6:
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -8666,7 +8678,7 @@ L11E9:
 ; ============================================================
 L11F0:
     BCFE L004B
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -8682,7 +8694,7 @@ L11F2:
     ST 0xD0
     BCS L024B
     BCFE L004B
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -8708,7 +8720,7 @@ L1205:
 ; Extended handlers
 ; ============================================================
 L1207:
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -8767,12 +8779,13 @@ L1210:
     ST AIRH
     BNC L05F0
     ST 0xD0
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
+; AIRH operation 2 (8 calls)
 ; ============================================================
-L121A:
+sub_airh_op2:
     NOP L0DE2
     BCFE L0118
     NOP L0DC8
@@ -8780,7 +8793,7 @@ L121A:
     ST AIRH
     BNC L1130
     ST 0xD0
-    CALL L11A5
+    CALL sub_short_util
 
 ; ============================================================
 ; Extended handlers
@@ -9116,8 +9129,9 @@ L1310:
 
 ; ============================================================
 ; Extended handlers
+; utility (7 calls)
 ; ============================================================
-L1312:
+sub_util_1312:
     ST r11 0xD0
 
 ; ============================================================
@@ -9146,7 +9160,7 @@ L1313:
 L1321:
     LD r11 0xD0
     BCFE L0050
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9154,7 +9168,7 @@ L1321:
 L1324:
     LD r11 0xD0
     BCFE L0090
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9162,7 +9176,7 @@ L1324:
 L1327:
     LD r11 0xD0
     BCFE L0110
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9170,7 +9184,7 @@ L1327:
 L132A:
     LD r11 0xD0
     BCFE L0210
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9178,7 +9192,7 @@ L132A:
 L132D:
     LD r11 0xD0
     BCFE L0410
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9186,7 +9200,7 @@ L132D:
 L1330:
     LD r11 0xD0
     BCFE L0810
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9194,7 +9208,7 @@ L1330:
 L1333:
     LD r11 0xD0
     BCFE L1010
-    CALL L1312
+    CALL sub_util_1312
 
 ; ============================================================
 ; Extended handlers
@@ -9205,8 +9219,9 @@ L1336:
 
 ; ============================================================
 ; Extended handlers
+; AIRH operation 3 (7 calls)
 ; ============================================================
-L1338:
+sub_airh_op3:
     ST r11 AIRH
     CALL L1313
 
@@ -9216,7 +9231,7 @@ L1338:
 L133A:
     LD r11 AIRH
     BCFE L0050
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9224,7 +9239,7 @@ L133A:
 L133D:
     LD r11 AIRH
     BCFE L0090
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9232,7 +9247,7 @@ L133D:
 L1340:
     LD r11 AIRH
     BCFE L0110
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9240,7 +9255,7 @@ L1340:
 L1343:
     LD r11 AIRH
     BCFE L0210
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9248,7 +9263,7 @@ L1343:
 L1346:
     LD r11 AIRH
     BCFE L0410
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9256,7 +9271,7 @@ L1346:
 L1349:
     LD r11 AIRH
     BCFE L0810
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9264,7 +9279,7 @@ L1349:
 L134C:
     LD r11 AIRH
     BCFE L1010
-    CALL L1338
+    CALL sub_airh_op3
 
 ; ============================================================
 ; Extended handlers
@@ -9305,7 +9320,7 @@ L1355:
     ALU r4 0x0C
     ALU2 0x5D
     ALU RISRl
-    BR1B L005D
+    BR1B sub_reset_dispatch
     LD r5 0xEA
     BR6 L0008
     ALU r4 0x0E
@@ -9340,8 +9355,9 @@ L1378:
 
 ; ============================================================
 ; Extended handlers
+; channel handler — 13 instructions (4 calls)
 ; ============================================================
-L137D:
+sub_chan_handler:
     BR12 L002A
     BR17 L1010
     BR1B L1381
@@ -9364,7 +9380,7 @@ L1382:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1150
-    BR1C L005D
+    BR1C sub_reset_dispatch
     CALL L03B9
     ALU 0x4D
     ALU2 f r3 0x78
@@ -9408,8 +9424,9 @@ L1395:
 
 ; ============================================================
 ; Extended handlers
+; channel init block (4 calls, one per channel)
 ; ============================================================
-L13AC:
+sub_chan_init:
     BR12 L036C
     BR6 L0008
     ALU 0x8E
@@ -9420,17 +9437,17 @@ L13AC:
     BCFE L0801
     BCS L0FE1
     ST r3 0x29
-    CALL L005D
+    CALL sub_reset_dispatch
     BCS L17E9
     BCFE L0409
-    CALL L13AC
+    CALL sub_chan_init
     BCS L1BE9
     BCFE L0809
-    CALL L13AC
+    CALL sub_chan_init
     BCFE L0401
-    CALL L13AC
+    CALL sub_chan_init
     BCS L1BE1
-    CALL L13AC
+    CALL sub_chan_init
     ALU f 0x01
     ALU2 0x5D
     ALU 0x8E
@@ -9440,13 +9457,13 @@ L13AC:
     ; RFOC: receive FIFO occupancy count
     LD r3 RFOC
     ALU 0x90
-    BR1B L005D
+    BR1B sub_reset_dispatch
     LD 0xB0
     BCFE L0050
     ST 0xB0
     BCFE L0040
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU 0x8E
     ALU2 0x5D
     ; LIVR: local interrupt vector register (host sets 0x40)
@@ -9454,7 +9471,7 @@ L13AC:
     ALU2 0x5D
     BNC L0010
     ST f r11 0x90
-    CALL L005D
+    CALL sub_reset_dispatch
     BR18 L1DB5
     BR1B L13DC
     BNC L0870
@@ -9494,7 +9511,7 @@ L13DE:
 L13ED:
     BCFE L0801
     BCS L0FE1
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Extended handlers
@@ -9510,7 +9527,7 @@ L13F0:
 L13F3:
     BR6 L0008
     LD r5 ATBADRU
-    BR1B L005D
+    BR1B sub_reset_dispatch
     BR17 L1048
     ALU2 f r4 0x00
     BR17 L1028
@@ -9523,18 +9540,18 @@ L13F3:
     CALL L1371
     BNC L0890
     ST 0xD0
-    CALL L137D
+    CALL sub_chan_handler
     BNC L0010
     ST r5 0x70
     BCFE L0C01
     BCS L0FE1
     BNC L0830
     ST 0xD0
-    CALL L137D
+    CALL sub_chan_handler
     BCS L0BE1
     BNC L0830
     ST 0xD0
-    CALL L137D
+    CALL sub_chan_handler
 
 ; ============================================================
 ; Extended handlers
@@ -9547,17 +9564,17 @@ L140E:
     ST r5 0x48
     BNC L08B0
     ST 0xD0
-    CALL L137D
+    CALL sub_chan_handler
 
 ; ============================================================
 ; Extended handlers
 ; ============================================================
 L1416:
     LD r5 ATBADRU
-    BR1B L005D
+    BR1B sub_reset_dispatch
     BNC L0830
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
     ALU f 0x08
     BR1B L1420
     BRC L1008
@@ -9731,8 +9748,9 @@ L151A:
 
 ; ============================================================
 ; Subroutine library
+; RBPR (receive baud) operation (7 calls)
 ; ============================================================
-L151E:
+sub_rbpr_op:
     ST r11 RBPR
     ST r9 0xEA
     ; jump to reset handler at 0x1000
@@ -9746,7 +9764,7 @@ L1521:
     ALU2 f r5 LICR
     BNC L0C2A
     BCS L1FAB
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9756,7 +9774,7 @@ L1526:
     ALU2 f r5 0x2B
     BNC L0C4A
     BCS L1F6B
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9767,7 +9785,7 @@ L152B:
     ALU2 f r5 RFOC
     BNC L0C6A
     BCS L1EEB
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9777,7 +9795,7 @@ L1530:
     ALU2 f r5 0x35
     BNC L0C8A
     BCS L1DEB
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9792,7 +9810,7 @@ L1535:
 ; ============================================================
 L1538:
     BCS L1BEB
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9802,7 +9820,7 @@ L153A:
     ALU2 f r5 0x3F
     BNC L0CCA
     BCS L17EB
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9812,7 +9830,7 @@ L153F:
     ALU2 f r5 0x59
     BNC L0CEA
     BCS L0FEB
-    CALL L151E
+    CALL sub_rbpr_op
 
 ; ============================================================
 ; Subroutine library
@@ -9893,8 +9911,9 @@ L1559:
 
 ; ============================================================
 ; Subroutine library
+; utility (7 calls)
 ; ============================================================
-L155F:
+sub_util_155F:
     ST r11 0xEB
     ST r9 0xEA
     ; jump to reset handler at 0x1000
@@ -9908,7 +9927,7 @@ L1562:
     ALU2 f r5 0x67
     BNC L0D2A
     BCS L1FAB
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -9918,7 +9937,7 @@ L1567:
     ALU2 f r5 0x6C
     BNC L0D4A
     BCS L1F6B
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -9928,7 +9947,7 @@ L156C:
     ALU2 f r5 0x71
     BNC L0D6A
     BCS L1EEB
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -9938,7 +9957,7 @@ L1571:
     ALU2 f r5 0x76
     BNC L0D8A
     BCS L1DEB
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -9948,7 +9967,7 @@ L1576:
     ALU2 f r5 0x7B
     BNC L0DAA
     BCS L1BEB
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -9959,7 +9978,7 @@ L157B:
     ALU2 f r5 TFTC
     BNC L0DCA
     BCS L17EB
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -9969,7 +9988,7 @@ L1580:
     ALU2 f r5 COR5
     BNC L0DEA
     BCS L0FEB
-    CALL L155F
+    CALL sub_util_155F
 
 ; ============================================================
 ; Subroutine library
@@ -10297,8 +10316,9 @@ L164B:
 
 ; ============================================================
 ; Subroutine library
+; channel config — COR1+ARBCNT (4 calls, one per channel)
 ; ============================================================
-L1652:
+sub_chan_config:
     ALU r1 0xE2
     BR1B L16D0
 
@@ -10308,14 +10328,15 @@ L1652:
 L1654:
     BR18 L1DA6
     BR17 L1FE8
-    BR1B L1659
+    BR1B sub_chan_config2
     ALU 0x8D
     BR1B L168B
 
 ; ============================================================
 ; Subroutine library
+; channel config 2 — COR1+ARBCNT (4 calls)
 ; ============================================================
-L1659:
+sub_chan_config2:
     LD r3 0x29
     BCS L1BE9
     ST r3 0x29
@@ -10369,11 +10390,11 @@ L1674:
     ALU r8 0x0D
     ALU2 f r6 ATBADRL
     BNC L0148
-    CALL L1652
+    CALL sub_chan_config
     ALU r4 0x0D
     ALU2 f r6 ATBADRL
     BNC L01A8
-    CALL L1652
+    CALL sub_chan_config
 
 ; ============================================================
 ; Subroutine library
@@ -10381,10 +10402,10 @@ L1674:
 L1680:
     BCS L1FC9
     ST r3 0x29
-    CALL L1652
+    CALL sub_chan_config
     BCFE L0029
     ST r3 0x29
-    CALL L1652
+    CALL sub_chan_config
 
 ; ============================================================
 ; Subroutine library
@@ -10408,10 +10429,10 @@ L168B:
     BR17 L020B
     ALU2 f r6 0x8F
     BR18 L1DA6
-    CALL L1659
+    CALL sub_chan_config2
     BNC L0810
     ST AIRH
-    CALL L1659
+    CALL sub_chan_config2
 
 ; ============================================================
 ; Subroutine library
@@ -10471,7 +10492,7 @@ L16A2:
 ; ============================================================
 L16A6:
     BCS L1DE2
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Subroutine library
@@ -10534,7 +10555,7 @@ L16C6:
     BCFE L0E10
     CALL L16C0
     BCS L1C02
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Subroutine library
@@ -10601,7 +10622,7 @@ L16E2:
     BR18 L02EA
     ST r6 ARBCNT
     ST r1 0x0B
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Subroutine library
@@ -10631,7 +10652,7 @@ L16F2:
     BR18 L1DA6
     BR17 L1FED
     BRA L0202
-    CALL L1659
+    CALL sub_chan_config2
 
 ; ============================================================
 ; Subroutine library
@@ -10651,7 +10672,7 @@ L1700:
     BR18 L1DA6
     BR17 L1FED
     BRA L0202
-    CALL L1659
+    CALL sub_chan_config2
     ALU 0x49
 
 ; ============================================================
@@ -10666,17 +10687,17 @@ L1710:
 ; ============================================================
 L1712:
     ALU r4 0x02
-    BR1B L0056
+    BR1B sub_dma_buf_setup
     LD r1 0x0B
     BR12 L1E70
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     BNC L07B0
     ST AIRH
     BCS L1DE2
     LD r3 0x70
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU r2 COR1
-    BR1B L0056
+    BR1B sub_dma_buf_setup
     LD r6 ARBCNT
     BNC L100D
     LD r2 ATBADRU
@@ -10688,7 +10709,7 @@ L1712:
     BR18 L02EA
     ST r6 ARBCNT
     ST r1 0x0B
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Subroutine library
@@ -10723,7 +10744,7 @@ L1728:
 ; ============================================================
 L173F:
     BR18 L02EA
-    CALL L0056
+    CALL sub_dma_buf_setup
 
 ; ============================================================
 ; Subroutine library
@@ -10907,7 +10928,7 @@ L17A7:
     ST AIRH
     BNC L0010
     ST r3 0x70
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -10926,7 +10947,7 @@ L17AE:
 L17B4:
     BNC L04D0
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -10943,7 +10964,7 @@ L17B7:
     BNC L05D0
     ST AIRH
     BCS L1062
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -10979,7 +11000,7 @@ L17C2:
     LD r3 0xD0
     BRB L1208
     ALU2 f r7 PILR2
-    CALL L17ED
+    CALL sub_livr_chan
 
 ; ============================================================
 ; Subroutine library
@@ -11005,7 +11026,7 @@ L17E2:
     LD r3 0x70
     BCFE L0110
     ST r3 0x70
-    CALL L17ED
+    CALL sub_livr_chan
 
 ; ============================================================
 ; Subroutine library
@@ -11024,12 +11045,13 @@ L17EA:
 ; ============================================================
 L17EB:
     ST r3 0x70
-    CALL L17ED
+    CALL sub_livr_chan
 
 ; ============================================================
 ; Subroutine library
+; LIVR + channel + ARBCNT setup (3 calls)
 ; ============================================================
-L17ED:
+sub_livr_chan:
     LD r2 0x8E
     BR18 L1DBB
     ST r1 0x90
@@ -11063,8 +11085,9 @@ L17F9:
 
 ; ============================================================
 ; Subroutine library
+; ARBCNT (DMA count) operation (6 calls)
 ; ============================================================
-L17FA:
+sub_arbcnt_op:
     BR18 L1DA6
     ST r6 ARBCNT
     ST r1 0x0B
@@ -11080,17 +11103,18 @@ L1801:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1170
-    BR1C L1808
+    BR1C sub_check_1462
     BR18 L02EA
     ALU r1 0x82
     BR1B L180E
 
 ; ============================================================
 ; Subroutine library
+; check and branch to 0x1462 (23 calls)
 ; ============================================================
-L1808:
+sub_check_1462:
     BCS L1462
-    CALL L0056
+    CALL sub_dma_buf_setup
     BNC L05B0
     ST AIRH
     BCFE L0402
@@ -11117,7 +11141,7 @@ L1810:
     BCS L1E62
     BNC L05D0
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -11127,7 +11151,7 @@ L181B:
     BCS L0FF0
     BR17 L0FF0
     ALU2 f r8 0xC2
-    CALL L1808
+    CALL sub_check_1462
     BR18 L1DBB
     ST r1 0x90
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
@@ -11138,7 +11162,7 @@ L181B:
     BR1B L1829
     BNC L0530
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -11149,15 +11173,15 @@ L1829:
     BNC L0550
     ST AIRH
     ST r1 0x90
-    CALL L1808
+    CALL sub_check_1462
     BNC L0550
     ST AIRH
-    CALL L1808
+    CALL sub_check_1462
     BNC L0530
     ST AIRH
     pad
     ST r1 0x90
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -11176,7 +11200,7 @@ L183B:
     ALU2 f r8 0x08
     LD r1 0x0B
     BR12 L1E90
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r6 ARBCNT
     CALL L190B
 
@@ -11186,7 +11210,7 @@ L183B:
 L184A:
     LD r1 0x0B
     BR12 L1E90
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r6 ARBCNT
     ALU r1 0x82
     BR1B L180E
@@ -11210,12 +11234,12 @@ L184A:
     ST r1 0x90
     LD r3 AIRH
     BRB L1208
-    BR1B L17FA
+    BR1B sub_arbcnt_op
     LD r3 0x6D
     ALU 0x8D
-    BR1B L17FA
+    BR1B sub_arbcnt_op
     ALU r1 0x0D
-    BR1B L17FA
+    BR1B sub_arbcnt_op
 
 ; ============================================================
 ; Subroutine library
@@ -11232,7 +11256,7 @@ L1869:
     BR18 L1DA6
     ALU r1 0x82
     BRA L120D
-    CALL L18B2
+    CALL sub_livr_chan2
     ; RFOC: receive FIFO occupancy count
     LD r3 RFOC
     BCS L11F0
@@ -11245,7 +11269,7 @@ L1869:
 L1876:
     BNC L0570
     ST AIRH
-    CALL L17FA
+    CALL sub_arbcnt_op
     LD r2 0x90
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU f COR1
@@ -11258,7 +11282,7 @@ L1876:
     ST r1 0x90
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ST r4 COR1
-    CALL L17FA
+    CALL sub_arbcnt_op
     ; RFOC: receive FIFO occupancy count
     LD r3 RFOC
     BCFE L0810
@@ -11286,7 +11310,7 @@ L1892:
     BCFE L080D
     LD r6 ARBCNT
     BR18 L1DA6
-    CALL L18B2
+    CALL sub_livr_chan2
 
 ; ============================================================
 ; Subroutine library
@@ -11335,8 +11359,9 @@ L18AF:
 
 ; ============================================================
 ; Subroutine library
+; LIVR + channel + ARBCNT setup 2 (3 calls)
 ; ============================================================
-L18B2:
+sub_livr_chan2:
     BNC L120C
     BR18 L134F
     ST r1 0x0B
@@ -11373,7 +11398,7 @@ L18C2:
     BCS L11F0
     ; RFOC: receive FIFO occupancy count
     ST r3 RFOC
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -11382,7 +11407,7 @@ L18CD:
     BNC L0590
     ST AIRH
     ST r1 0x90
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -11423,18 +11448,18 @@ L18E4:
     ; CAR: channel access register (selects channel 0-3)
     ALU2 f r8 CAR
     BR17 L1FE8
-    BR1B L17FA
+    BR1B sub_arbcnt_op
     BNC L080D
     ; RFOC: receive FIFO occupancy count
     LD r3 RFOC
     BCS L11F0
     ; RFOC: receive FIFO occupancy count
     ST r3 RFOC
-    CALL L18B2
+    CALL sub_livr_chan2
     BCS L0FE8
     BR17 L0FE8
     ALU2 f r8 0xE9
-    CALL L17FA
+    CALL sub_arbcnt_op
 
 ; ============================================================
 ; Subroutine library
@@ -11442,7 +11467,7 @@ L18E4:
 L18F2:
     LD r1 0x0B
     BR12 L1E90
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r5 0x88
     LD r6 ARBCNT
     BR17 L0208
@@ -11455,7 +11480,7 @@ L18F2:
 L18FA:
     LD r1 0x0B
     BR12 L1E90
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r3 0x29
     BNC L0510
     ST AIRH
@@ -11482,9 +11507,9 @@ L190B:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1170
-    BR1C L1808
+    BR1C sub_check_1462
     BR18 L02EA
-    CALL L1808
+    CALL sub_check_1462
 
 ; ============================================================
 ; Subroutine library
@@ -11522,7 +11547,7 @@ L1923:
     LD r3 0xD0
     BRB L1208
     ALU2 f r8 0x73
-    CALL L17FA
+    CALL sub_arbcnt_op
 
 ; ============================================================
 ; Subroutine library
@@ -11530,7 +11555,7 @@ L1923:
 L192E:
     LD r1 0x0B
     BR12 L1E90
-    BR1C L0056
+    BR1C sub_dma_buf_setup
     LD r3 0x29
     BNC L0510
     ST AIRH
@@ -11554,7 +11579,7 @@ L192E:
     ST r1 0x90
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ST r4 COR1
-    CALL L17FA
+    CALL sub_arbcnt_op
     LD r3 0x70
     ALU 0x90
     BR1B L17F9
@@ -11562,7 +11587,7 @@ L192E:
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU r1 COR1
     BR1B L17F9
-    CALL L17FA
+    CALL sub_arbcnt_op
 
 ; ============================================================
 ; Subroutine library
@@ -11601,8 +11626,9 @@ L195E:
 
 ; ============================================================
 ; Subroutine library
+; utility (7 calls)
 ; ============================================================
-L1960:
+sub_util_1960:
     ST 0xD0
 
 ; ============================================================
@@ -11610,7 +11636,7 @@ L1960:
 ; ============================================================
 L1961:
     BCFE L0801
-    CALL L005D
+    CALL sub_reset_dispatch
     BNC L1548
     CALL L195E
 
@@ -11635,7 +11661,7 @@ L1969:
     ST r3 0x70
     BCS L0FE2
     BNC L0630
-    CALL L1960
+    CALL sub_util_1960
 
 ; ============================================================
 ; Subroutine library
@@ -11648,7 +11674,7 @@ L1971:
     BCS L0070
     ST 0x90
     BNC L0650
-    CALL L1960
+    CALL sub_util_1960
 
 ; ============================================================
 ; Subroutine library
@@ -11661,7 +11687,7 @@ L1979:
     BCS L1DE1
     CALL L1961
     BNC L0670
-    CALL L1960
+    CALL sub_util_1960
 
 ; ============================================================
 ; Subroutine library
@@ -11736,7 +11762,7 @@ L19A2:
     LD r2 0xD0
     BCS L01F0
     BCC8 L1150
-    BR1C L005D
+    BR1C sub_reset_dispatch
     CALL L03A9
 
 ; ============================================================
@@ -11808,7 +11834,7 @@ L19C4:
 L19D3:
     BCFE L0801
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Subroutine library
@@ -11913,7 +11939,7 @@ L1A0D:
     ALU ARBADRL
     BR1B L1A15
     BR18 L0425
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Subroutine library
@@ -11960,7 +11986,7 @@ L1A15:
 ; ============================================================
 L1A36:
     BNC L0730
-    CALL L1960
+    CALL sub_util_1960
     ; RFOC: receive FIFO occupancy count
     LD r3 RFOC
     BCFE L0090
@@ -12038,7 +12064,7 @@ L1A54:
 L1A5E:
     BCS L1BE1
     BNC L0770
-    CALL L1960
+    CALL sub_util_1960
 
 ; ============================================================
 ; Subroutine library
@@ -12064,7 +12090,7 @@ L1A67:
 L1A68:
     ST r5 0x70
     BNC L0750
-    CALL L1960
+    CALL sub_util_1960
 
 ; ============================================================
 ; Subroutine library
@@ -12099,7 +12125,7 @@ L1A73:
     BCS L0FF0
     ST r3 0x70
     BNC L05F0
-    CALL L1960
+    CALL sub_util_1960
     LD r2 0xB0
     ; COR1: data bits, parity (host writes 0x17 for 8N1)
     ALU r1 COR1
@@ -12128,7 +12154,7 @@ L1A88:
     ALU2 r3 ARBADRL
     BNC L05F0
     ST 0xD0
-    CALL L005D
+    CALL sub_reset_dispatch
 
 ; ============================================================
 ; Subroutine library
@@ -12191,9 +12217,9 @@ L1A9B:
     BR12 L1FE9
     ; LIVR: local interrupt vector register (host sets 0x40)
     ST r5 LIVR
-    BR1B L1AEA
+    BR1B sub_rbpr_setup
     LD r5 0x2A
-    BR1B L1AEA
+    BR1B sub_rbpr_setup
     LD r3 0x0E
     ALU r1 0x0E
     BR1B L1AC9
@@ -12223,7 +12249,7 @@ L1AC9:
     BCFE L0090
     ST 0xB0
     BCFE L0800
-    CALL L1AEA
+    CALL sub_rbpr_setup
     LD r1 0x0B
     BR1B L1AE1
     ; jump to reset handler at 0x1000
@@ -12241,7 +12267,7 @@ L1AC9:
     BR18 L02EA
     ST r6 ARBCNT
     ST r1 0x0B
-    CALL L1AEA
+    CALL sub_rbpr_setup
 
 ; ============================================================
 ; Subroutine library
@@ -12249,7 +12275,7 @@ L1AC9:
 L1AE1:
     BR18 L1E39
     BR18 L02EA
-    CALL L1AEA
+    CALL sub_rbpr_setup
     LD r5 0x2A
     ALU2 f r10 0xEA
     BR12 L1FEA
@@ -12260,8 +12286,9 @@ L1AE1:
 
 ; ============================================================
 ; Subroutine library
+; RBPR (receive baud period) setup (3 calls)
 ; ============================================================
-L1AEA:
+sub_rbpr_setup:
     LD r5 0x49
     ALU2 f r13 0xAB
     BR12 L1FE9
@@ -12362,17 +12389,18 @@ L1B29:
     ALU2 f r11 0x31
     BNC L0002
     BNC L0001
-    CALL L1B33
+    CALL sub_dma_rx_handler
     BNC L1002
     BNC L0001
-    CALL L1B33
+    CALL sub_dma_rx_handler
     BNC L1002
     BNC L1001
 
 ; ============================================================
 ; Subroutine library
+; DMA receive handler — RFOC+ATBADRU+LIVR (2 calls, 42 insns)
 ; ============================================================
-L1B33:
+sub_dma_rx_handler:
     pad
     BNC L0010
 
@@ -12440,7 +12468,7 @@ L1B59:
     BR18 L1194
     BNC L1010
     ST f r8 AIRH
-    CALL L1B91
+    CALL sub_livr_setup
 
 ; ============================================================
 ; Subroutine library
@@ -12457,7 +12485,7 @@ L1B5E:
     BCS L1F50
     ; RFOC: receive FIFO occupancy count
     ST r3 RFOC
-    CALL L1B91
+    CALL sub_livr_setup
 
 ; ============================================================
 ; Subroutine library
@@ -12472,7 +12500,7 @@ L1B68:
     LD r3 0x2A
     BCS L1E4A
     ST r3 0x2A
-    CALL L1B91
+    CALL sub_livr_setup
 
 ; ============================================================
 ; Subroutine library
@@ -12493,7 +12521,7 @@ L1B6C:
     LD f r11 0xB0
     BCS L1FB0
     ST f r11 0xB0
-    CALL L1B91
+    CALL sub_livr_setup
 
 ; ============================================================
 ; Subroutine library
@@ -12545,8 +12573,9 @@ L1B90:
 
 ; ============================================================
 ; Subroutine library
+; LIVR (interrupt vector) setup (4 calls)
 ; ============================================================
-L1B91:
+sub_livr_setup:
     BCC L0130
     BR1B L1A9B
     ; LIVR: local interrupt vector register (host sets 0x40)
@@ -12649,7 +12678,7 @@ L1BB5:
     NOP L0478
     BNC L02F0
     ST 0xD0
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12665,7 +12694,7 @@ L1BDB:
 ; Subroutine library
 ; ============================================================
 L1BE0:
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12681,7 +12710,7 @@ L1BE2:
     NOP L0478
     BNC L0830
     ST 0xD0
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12712,7 +12741,7 @@ L1BEB:
 ; Subroutine library
 ; ============================================================
 L1BEC:
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12723,7 +12752,7 @@ L1BED:
     NOP L0680
     BNC L0A30
     ST 0xD0
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12734,7 +12763,7 @@ L1BF3:
     NOP L0980
     BNC L0C10
     ST 0xD0
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12745,7 +12774,7 @@ L1BF9:
     NOP L0B15
     BNC L0D90
     ST 0xD0
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12761,7 +12790,7 @@ L1BFF:
 L1C02:
     BNC L05F0
     ST 0xD0
-    CALL L1C08
+    CALL sub_cor1_op
 
 ; ============================================================
 ; Subroutine library
@@ -12773,8 +12802,9 @@ L1C05:
 
 ; ============================================================
 ; Subroutine library
+; COR1 operation (8 calls)
 ; ============================================================
-L1C08:
+sub_cor1_op:
     BNC L00D0
 
 ; ============================================================
@@ -12861,7 +12891,7 @@ L1C20:
     NOP L0061
     BNC L0210
     ST AIRH
-    CALL L1C71
+    CALL sub_short_branch
 
 ; ============================================================
 ; Subroutine library
@@ -12872,7 +12902,7 @@ L1C40:
     NOP L04FB
     BNC L0490
     ST AIRH
-    CALL L1C71
+    CALL sub_short_branch
 
 ; ============================================================
 ; Subroutine library
@@ -12894,7 +12924,7 @@ L1C4C:
     NOP L04AD
     BNC L08D0
     ST AIRH
-    CALL L1C71
+    CALL sub_short_branch
 
 ; ============================================================
 ; Subroutine library
@@ -12941,7 +12971,7 @@ L1C64:
     NOP L04FB
     BNC L1110
     ST AIRH
-    CALL L1C71
+    CALL sub_short_branch
 
 ; ============================================================
 ; Subroutine library
@@ -12953,7 +12983,7 @@ L1C68:
     BCFE L1022
     BNC L11B0
     ST AIRH
-    CALL L1C71
+    CALL sub_short_branch
 
 ; ============================================================
 ; Subroutine library
@@ -12964,8 +12994,9 @@ L1C6F:
 
 ; ============================================================
 ; Subroutine library
+; short branch (5 calls)
 ; ============================================================
-L1C71:
+sub_short_branch:
     ST f r9 0x0F
 
 ; ============================================================
@@ -13898,8 +13929,9 @@ L1E41:
 
 ; ============================================================
 ; Subroutine library
+; TFTC (transmit FIFO count) operation (3 calls)
 ; ============================================================
-L1E44:
+sub_tftc_op:
     ; TFTC: transmit FIFO transfer count
     ALU TFTC
     BR1B L1EA7
@@ -13937,7 +13969,7 @@ L1E4B:
 L1E50:
     BR18 L1D42
     BCS L1EE0
-    CALL L1E44
+    CALL sub_tftc_op
     LD r6 RBPR
     BR1B L1E60
     ; RIR: receive interrupt register (bit 7 = Ren = service pending)
@@ -13945,7 +13977,7 @@ L1E50:
     BR1B L1E61
     BR18 L15AA
     BR1B L1E5A
-    CALL L1E44
+    CALL sub_tftc_op
 
 ; ============================================================
 ; Subroutine library
@@ -14086,7 +14118,7 @@ L1E91:
     ST r9 0xD0
     BR18 L1D42
     BCS L1EE0
-    CALL L1E44
+    CALL sub_tftc_op
 
 ; ============================================================
 ; Subroutine library

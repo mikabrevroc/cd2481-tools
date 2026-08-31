@@ -85,6 +85,41 @@ OP_BY_NAME = {}
 for op, (name, fmt) in OPCODES.items():
     OP_BY_NAME[name] = (op, fmt)
 
+SUBROUTINES = {
+    0x005D: ("sub_reset_dispatch", "reset dispatch — BR12 + ALU + JMP to reset_handler (91 calls)"),
+    0x06E7: ("sub_check_status", "status check — single BCS branch (41 calls)"),
+    0x08C3: ("sub_store_status", "store status byte + conditional branches (36 calls)"),
+    0x1808: ("sub_check_1462", "check and branch to 0x1462 (23 calls)"),
+    0x06E6: ("sub_cond_branch", "conditional branch (14 calls)"),
+    0x0056: ("sub_dma_buf_setup", "DMA buffer setup — touches ARBADRU + ATBADRL (13 calls)"),
+    0x0F38: ("sub_airh_op", "AIRH operation (8 calls)"),
+    0x121A: ("sub_airh_op2", "AIRH operation 2 (8 calls)"),
+    0x11A5: ("sub_short_util", "short utility (8 calls)"),
+    0x1C08: ("sub_cor1_op", "COR1 operation (8 calls)"),
+    0x1312: ("sub_util_1312", "utility (7 calls)"),
+    0x1338: ("sub_airh_op3", "AIRH operation 3 (7 calls)"),
+    0x151E: ("sub_rbpr_op", "RBPR (receive baud) operation (7 calls)"),
+    0x155F: ("sub_util_155F", "utility (7 calls)"),
+    0x1960: ("sub_util_1960", "utility (7 calls)"),
+    0x17FA: ("sub_arbcnt_op", "ARBCNT (DMA count) operation (6 calls)"),
+    0x1C71: ("sub_short_branch", "short branch (5 calls)"),
+    0x0232: ("sub_airh_setup", "AIRH setup sequence — 20 instructions (4 calls)"),
+    0x13AC: ("sub_chan_init", "channel init block (4 calls, one per channel)"),
+    0x137D: ("sub_chan_handler", "channel handler — 13 instructions (4 calls)"),
+    0x1652: ("sub_chan_config", "channel config — COR1+ARBCNT (4 calls, one per channel)"),
+    0x1659: ("sub_chan_config2", "channel config 2 — COR1+ARBCNT (4 calls)"),
+    0x1B91: ("sub_livr_setup", "LIVR (interrupt vector) setup (4 calls)"),
+    0x0F14: ("sub_rxchar_detect", "receive special char detect — RISRl+SCHR2 (3 calls)"),
+    0x17ED: ("sub_livr_chan", "LIVR + channel + ARBCNT setup (3 calls)"),
+    0x18B2: ("sub_livr_chan2", "LIVR + channel + ARBCNT setup 2 (3 calls)"),
+    0x1AEA: ("sub_rbpr_setup", "RBPR (receive baud period) setup (3 calls)"),
+    0x1E44: ("sub_tftc_op", "TFTC (transmit FIFO count) operation (3 calls)"),
+    0x0702: ("sub_isr_entry", "ISR entry — CCR+COR1+LIVR+RFOC (2 calls)"),
+    0x1B33: ("sub_dma_rx_handler", "DMA receive handler — RFOC+ATBADRU+LIVR (2 calls, 42 insns)"),
+    0x0518: ("sub_txeoi_handler", "transmit EOI handler — TEOIR (2 calls)"),
+    0x0CB6: ("sub_baud_config", "baud rate config — COR1+RISRl+TCOR (2 calls)"),
+}
+
 
 def unpack_insn(blob, i):
     bit = i * BITS
@@ -262,6 +297,10 @@ def decompile(blob, outpath):
             labels[addr] = "dispatch_table"
         elif addr == 0x1000:
             labels[addr] = "reset_handler"
+        elif addr == 0x1065:
+            labels[addr] = "channel_handler"
+        elif addr in SUBROUTINES:
+            labels[addr] = SUBROUTINES[addr][0]
         elif 0x0062 <= addr <= 0x0075 and (addr - 0x0062) % 3 == 0:
             ch = (addr - 0x0062) // 3
             labels[addr] = f"chan{ch}_dispatch"
@@ -332,11 +371,14 @@ def decompile(blob, outpath):
             elif 0x0100 <= i <= 0x01FF: region = "Interrupt service dispatch"
             elif 0x0200 <= i <= 0x05FF: region = "Register initialization"
             elif 0x0600 <= i <= 0x0FFF: region = "Main protocol handler"
-            elif i == 0x1000: region = "Reset handler"
+            elif i == 0x1000: region = "Reset handler — CCR command processing"
+            elif i == 0x1065: region = "Common channel handler"
             elif 0x1000 <= i <= 0x14FF: region = "Extended handlers"
             elif 0x1500 <= i <= 0x1FFF: region = "Subroutine library"
             if region:
                 out.append(f"; {region}")
+            if i in SUBROUTINES:
+                out.append(f"; {SUBROUTINES[i][1]}")
             out.append(f"; ============================================================")
             out.append(f"{labels[i]}:")
 
