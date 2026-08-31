@@ -49,41 +49,41 @@ REGISTERS = {
 REG_BY_NAME = {v: k for k, v in REGISTERS.items()}
 
 OPCODES = {
-    0x00: ("NOP",   False),
-    0x01: ("B01",   True),
-    0x02: ("B02",   True),
-    0x03: ("B03",   True),
-    0x04: ("B04",   True),
-    0x06: ("B06",   True),
-    0x07: ("B07",   True),
-    0x08: ("B08",   True),
-    0x09: ("B09",   True),
-    0x0A: ("B0A",   True),
-    0x0B: ("B0B",   True),
-    0x0C: ("B0C",   True),
-    0x0D: ("B0D",   True),
-    0x0E: ("B0E",   True),
-    0x0F: ("JMP",   True),
-    0x10: ("L10",   False),
-    0x11: ("L11",   False),
-    0x12: ("B12",   True),
-    0x13: ("B13",   True),
-    0x14: ("B14",   True),
-    0x15: ("B15",   True),
-    0x16: ("L16",   False),
-    0x17: ("B17",   True),
-    0x18: ("B18",   True),
-    0x19: ("JMPF",  True),
-    0x1A: ("L1A",   False),
-    0x1B: ("B1B",   True),
-    0x1C: ("B1C",   True),
-    0x1D: ("B1D",   True),
-    0x1E: ("JMP1E", True),
-    0x1F: ("B1F",   True),
+    0x00: ("NOP",   "control"),
+    0x01: ("BCH",   "control"),
+    0x02: ("BCH2",  "control"),
+    0x03: ("BCH3",  "control"),
+    0x04: ("BCC",   "control"),
+    0x06: ("BR6",   "control"),
+    0x07: ("BR7",   "control"),
+    0x08: ("BCC8",  "control"),
+    0x09: ("BR9",   "control"),
+    0x0A: ("BRA",   "control"),
+    0x0B: ("BRB",   "control"),
+    0x0C: ("BRC",   "control"),
+    0x0D: ("BRD",   "control"),
+    0x0E: ("BRE",   "control"),
+    0x0F: ("JMP",   "control"),
+    0x10: ("LD",    "data"),
+    0x11: ("ST",    "data"),
+    0x12: ("BR12",  "control"),
+    0x13: ("BNC",   "control"),
+    0x14: ("BCS",   "control"),
+    0x15: ("BCFE",  "control"),
+    0x16: ("ALU",   "data"),
+    0x17: ("BR17",  "control"),
+    0x18: ("BR18",  "control"),
+    0x19: ("CALL",  "control"),
+    0x1A: ("ALU2",  "data"),
+    0x1B: ("BR1B",  "control"),
+    0x1C: ("BR1C",  "control"),
+    0x1D: ("BR1D",  "control"),
+    0x1E: ("JMP1E", "control"),
+    0x1F: ("BR1F",  "control"),
 }
 OP_BY_NAME = {}
-for op, (name, has_addr) in OPCODES.items():
-    OP_BY_NAME[name] = (op, has_addr)
+for op, (name, fmt) in OPCODES.items():
+    OP_BY_NAME[name] = (op, fmt)
 
 
 def unpack_insn(blob, i):
@@ -127,8 +127,8 @@ def collect_targets(insns, end):
     targets = set()
     for i in range(end):
         op = (insns[i] >> 13) & 0x1F
-        name, has_addr = OPCODES.get(op, ("??", False))
-        if has_addr:
+        name, fmt = OPCODES.get(op, ("??", "control"))
+        if fmt == "control":
             addr = insns[i] & 0x1FFF
             if addr < INSNS:
                 targets.add(addr)
@@ -144,27 +144,31 @@ def reg_name(addr):
 
 def disassemble_insn(insn, labels, addr):
     op = (insn >> 13) & 0x1F
-    name, has_addr = OPCODES.get(op, (None, None))
+    name, fmt = OPCODES.get(op, (None, None))
     if name is None:
         return f".word 0x{insn:05X}"
     if insn == PAD:
         return "pad"
-    if has_addr:
+    if fmt == "control":
         target = insn & 0x1FFF
         label = labels.get(target, f"0x{target:04X}")
         return f"{name} {label}"
-    low8 = insn & 0xFF
-    mid8 = (insn >> 8) & 0xFF
-    r1 = reg_name(low8)
-    r2 = reg_name(mid8)
-    if r1 and r2:
-        return f"{name} {r1},{r2}"
-    elif r1:
-        return f"{name} {r1},0x{mid8:02X}"
-    elif r2:
-        return f"{name} 0x{low8:02X},{r2}"
-    else:
-        return f"{name} 0x{low8:02X},0x{mid8:02X}"
+    if fmt == "data":
+        flag = (insn >> 12) & 1
+        ireg = (insn >> 8) & 0xF
+        uart_reg = insn & 0xFF
+        r = reg_name(uart_reg)
+        reg_str = r if r else f"0x{uart_reg:02X}"
+        if ireg == 0 and flag == 0:
+            return f"{name} {reg_str}"
+        parts = [f"{name}"]
+        if flag:
+            parts.append("f")
+        if ireg:
+            parts.append(f"r{ireg}")
+        parts.append(reg_str)
+        return " ".join(parts)
+    return f".word 0x{insn:05X}"
 
 
 def annotate(insn, addr, insns, end):
@@ -172,20 +176,20 @@ def annotate(insn, addr, insns, end):
     op = (insn >> 13) & 0x1F
     low8 = insn & 0xFF
     mid8 = (insn >> 8) & 0xFF
-    name, has_addr = OPCODES.get(op, ("", False))
+    name, fmt = OPCODES.get(op, ("", "control"))
 
     if insn == PAD:
         return []
 
     if addr == 0x0000:
-        lines.append("entry point — microcode starts here")
+        lines.append("entry point — microcode starts here after reset")
     if addr == 0x0060:
-        lines.append("channel dispatch table — JUMP to 0x1000 (reset handler)")
+        lines.append("channel dispatch table — JMP to reset_handler (0x1000)")
     if addr == 0x0061:
         lines.append("dispatch to common channel handler at 0x1065")
     if 0x0062 <= addr <= 0x0075 and (addr - 0x0062) % 3 == 0:
         ch = (addr - 0x0062) // 3
-        lines.append(f"channel {ch} dispatch — BR_COND to handler")
+        lines.append(f"channel {ch} dispatch — conditional branch to handler")
     if 0x0062 <= addr <= 0x0075 and (addr - 0x0062) % 3 == 1:
         ch = (addr - 0x0062) // 3
         lines.append(f"channel {ch} conditional branch to fast path")
@@ -194,44 +198,51 @@ def annotate(insn, addr, insns, end):
     if addr == 0x007D:
         lines.append("loop back to dispatch for next channel")
 
-    if r1 := reg_name(low8):
-        if r1 == "COR1":
-            lines.append("COR1: channel option register 1 (data bits, parity)")
-        elif r1 == "RFOC":
-            lines.append("RFOC: receive FIFO occupancy count")
-        elif r1 == "LIVR":
-            lines.append("LIVR: local interrupt vector register")
-        elif r1 == "TEOIR":
-            lines.append("TEOIR: transmit end-of-interrupt register")
-        elif r1 == "REOIR":
-            lines.append("REOIR: receive end-of-interrupt register")
-        elif r1 == "TIR":
-            lines.append("TIR: transmit interrupt register (bit 7 = Ten = service pending)")
-        elif r1 == "RIR":
-            lines.append("RIR: receive interrupt register (bit 7 = Ren = service pending)")
-        elif r1 == "CAR":
-            lines.append("CAR: channel access register (selects channel 0-3)")
-        elif r1 == "AIRH":
-            lines.append("AIRH: aux instruction register high (self-ref in microcode?)")
+    if fmt == "data":
+        r1 = reg_name(low8)
+        if r1:
+            if r1 == "COR1":
+                lines.append("COR1: data bits, parity (host writes 0x17 for 8N1)")
+            elif r1 == "RFOC":
+                lines.append("RFOC: receive FIFO occupancy count")
+            elif r1 == "LIVR":
+                lines.append("LIVR: local interrupt vector register (host sets 0x40)")
+            elif r1 == "TEOIR":
+                lines.append("TEOIR: transmit end-of-interrupt (host writes to end TX service)")
+            elif r1 == "REOIR":
+                lines.append("REOIR: receive end-of-interrupt (host writes to end RX service)")
+            elif r1 == "TIR":
+                lines.append("TIR: transmit interrupt register (bit 7 = Ten = service pending)")
+            elif r1 == "RIR":
+                lines.append("RIR: receive interrupt register (bit 7 = Ren = service pending)")
+            elif r1 == "CAR":
+                lines.append("CAR: channel access register (selects channel 0-3)")
+            elif r1 == "GFRCR":
+                lines.append("GFRCR: firmware revision code (host reads to verify microcode alive)")
+            elif r1 == "CCR":
+                lines.append("CCR: channel command register (host writes commands, microcode clears)")
+            elif r1 == "IER":
+                lines.append("IER: interrupt enable register")
+            elif r1 == "CMR":
+                lines.append("CMR: channel mode register (async/sync/DMA)")
+            elif r1 == "TFTC":
+                lines.append("TFTC: transmit FIFO transfer count")
+            elif r1 == "ARBSTS":
+                lines.append("ARBSTS: DMA receive buffer status (bit 0 = OWN)")
+            elif r1 == "ATBSTS":
+                lines.append("ATBSTS: DMA transmit buffer status (bit 0 = OWN)")
 
-    if r2 := reg_name(mid8):
-        if r2 == "ARBADRU":
-            lines.append("ARBADRU: DMA receive buffer address (upper)")
-        elif r2 == "TCOR":
-            lines.append("TCOR: transmit clock option register")
-        elif r2 == "RCOR":
-            lines.append("RCOR: receive clock option register (bit 7 = TLVal)")
-        elif r2 == "CMR":
-            lines.append("CMR: channel mode register (async/sync/DMA mode)")
-        elif r2 == "LICR":
-            lines.append("LICR: local interrupting channel register")
-
-    if name == "JUMP" and has_addr:
-        target = insn & 0x1FFF
-        if target == 0:
-            lines.append("jump to reset/idle")
-        elif target == 0x1000:
-            lines.append("jump to reset handler at 0x1000")
+    if fmt == "control":
+        if name == "JMP":
+            target = insn & 0x1FFF
+            if target == 0:
+                lines.append("jump to reset/idle")
+            elif target == 0x1000:
+                lines.append("jump to reset handler at 0x1000")
+        elif name == "CALL":
+            target = insn & 0x1FFF
+            if target == 0x1FFF:
+                lines.append("call to end of store (restart/reset vector)")
 
     return lines
 
@@ -261,20 +272,41 @@ def decompile(blob, outpath):
     out.append("; CD2481 Microcode — Decompiled Source")
     out.append(f"; Original: cd2481_ucode.bin (18432 bytes, MD5 {md5sum_bytes(blob)})")
     out.append(f"; Format: 8192 x 18-bit instructions, packed LE (4 per 9 bytes)")
-    out.append(f"; Hypothesized ISA: [17:13]=opcode(5b) [12:0]=operand(13b)")
-    out.append(f"; Known: JUMP 0x3FFF = 0x33FFF (opcode 0x19, confirmed by datasheet)")
+    out.append(";")
+    out.append("; Instruction format (variable, opcode determines decoding):")
+    out.append(";   Control:  [17:13]=opcode(5b)  [12:0]=target addr(13b)")
+    out.append(";   Data:     [17:13]=opcode(5b)  [12]=flag(1b) [11:8]=ireg(4b) [7:0]=uart_reg(8b)")
+    out.append(";")
+    out.append("; Known instructions:")
+    out.append(";   JMP  0x0000 = 0x1E000  (opcode 0x0F, confirmed by datasheet)")
+    out.append(";   CALL 0x1FFF = 0x33FFF  (opcode 0x19, 'jump 0x3FFF' in datasheet)")
+    out.append(";")
+    out.append("; Opcode semantics (reverse-engineered, confidence varies):")
+    out.append(";   0x0F JMP   — unconditional jump (confirmed)")
+    out.append(";   0x19 CALL  — call subroutine / far jump (inferred)")
+    out.append(";   0x10 LD    — load/read UART register (inferred: partner of ST)")
+    out.append(";   0x11 ST    — store/write UART register (inferred: TEOIR writes use this)")
+    out.append(";   0x16 ALU   — arithmetic op, e.g. add/inc (inferred: always paired with ALU2)")
+    out.append(";   0x1A ALU2  — logical op, e.g. and/or/sub (inferred: paired with ALU)")
+    out.append(";   0x13 BNC   — conditional branch, main loop (inferred: first instruction)")
+    out.append(";   0x14 BCS   — conditional branch, status check (inferred: GFRCR appears here)")
+    out.append(";   0x15 BCFE  — conditional branch, if-else with CALL (inferred)")
+    out.append(";   0x01 BCH   — conditional branch, channel dispatch (inferred: dispatch table)")
+    out.append(";   0x03 BCH3  — conditional branch, channel handler entry (inferred)")
+    out.append(";   0x04 BCC   — conditional branch, CCR-related (inferred)")
+    out.append(";   0x00 NOP   — no-op / wait (inferred)")
+    out.append(";")
     out.append(f"; Real code: 0x0000-0x{pad_start-1:04X} ({pad_start} instructions)")
     out.append(f"; Padding:  0x{pad_start:04X}-0x{INSNS-1:04X} ({INSNS-pad_start} x 0x{PAD:05X})")
     out.append(";")
-    out.append("; Register references (Motorola addressing, from nm32a.c):")
+    out.append("; UART register map (Motorola addressing, from nm32a.c):")
     for addr_val in sorted(REGISTERS.keys()):
         out.append(f";   0x{addr_val:02X} = {REGISTERS[addr_val]}")
     out.append(";")
-    out.append("; Opcode map (reverse-engineered):")
-    for op in sorted(OPCODES.keys()):
-        name, has_addr = OPCODES[op]
-        flags = "addr" if has_addr else "data"
-        out.append(f";   {op:05b} (0x{op:02X}) = {name:<6s} [{flags}]")
+    out.append("; Data instruction fields:")
+    out.append(";   flag — bit 12, meaning unknown (set in ~20% of data instructions)")
+    out.append(";   ireg — bits [11:8], internal RISC register index (0-15)")
+    out.append(";   uart_reg — bits [7:0], UART register address or immediate value")
     out.append(";")
     out.append("; To reassemble:  python3 cd2481_asm.py assemble <this_file> -o output.bin")
     out.append("")
@@ -438,30 +470,32 @@ def assemble(asmpath, outpath):
             continue
 
         if mnem in OP_BY_NAME:
-            op, has_addr = OP_BY_NAME[mnem]
-            if has_addr:
+            op, fmt = OP_BY_NAME[mnem]
+            if fmt == "control":
                 if len(parts) < 2:
                     raise ValueError(f"line {line_no}: {mnem} needs target")
                 target = parse_operand(parts[1], labels, pc)
                 if target is None:
                     raise ValueError(f"line {line_no}: cannot resolve '{parts[1]}'")
                 val = (op << 13) | (target & 0x1FFF)
-            else:
-                low = 0
-                mid = 0
-                if len(parts) >= 2:
-                    r = parse_reg(parts[1])
+            elif fmt == "data":
+                flag = 0
+                ireg = 0
+                uart_reg = 0
+                idx = 1
+                if idx < len(parts) and parts[idx] == "f":
+                    flag = 1
+                    idx += 1
+                if idx < len(parts) and re.match(r'^r\d+$', parts[idx]):
+                    ireg = int(parts[idx][1:]) & 0xF
+                    idx += 1
+                if idx < len(parts):
+                    r = parse_reg(parts[idx])
                     if r is not None:
-                        low = r
+                        uart_reg = r
                     else:
-                        low = int(parts[1], 0) & 0xFF
-                if len(parts) >= 3:
-                    r = parse_reg(parts[2])
-                    if r is not None:
-                        mid = r
-                    else:
-                        mid = int(parts[2], 0) & 0xFF
-                val = (op << 13) | (mid << 8) | low
+                        uart_reg = int(parts[idx], 0) & 0xFF
+                val = (op << 13) | (flag << 12) | (ireg << 8) | uart_reg
             instructions[pc] = val
             continue
 
